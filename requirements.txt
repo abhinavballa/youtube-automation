@@ -1,0 +1,11 @@
+# Core
+anthropic
+requests
+tenacity
+python-dotenv
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
+
+# Testing
+pytest
