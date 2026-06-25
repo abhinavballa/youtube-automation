@@ -9,7 +9,6 @@ import googleapiclient.http
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 TOKEN_PATH = Path(__file__).parent.parent / ".youtube_token.json"
