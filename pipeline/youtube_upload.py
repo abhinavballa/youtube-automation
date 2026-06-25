@@ -9,10 +9,10 @@ import googleapiclient.http
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from tenacity import retry, stop_after_attempt, wait_exponential
+from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
-TOKEN_PATH = Path(".youtube_token.json")
+TOKEN_PATH = Path(__file__).parent.parent / ".youtube_token.json"
 CHUNK_SIZE = 1024 * 1024
 
 
@@ -32,11 +32,6 @@ def _get_credentials() -> Credentials:
     return creds
 
 
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=5, exp_base=3, min=5, max=45),
-    reraise=True,
-)
 def upload_video(video_path: Path, metadata: dict, publish_at: str) -> str:
     creds = _get_credentials()
     youtube = googleapiclient.discovery.build("youtube", "v3", credentials=creds)
@@ -57,7 +52,7 @@ def upload_video(video_path: Path, metadata: dict, publish_at: str) -> str:
         str(video_path), mimetype="video/mp4", chunksize=CHUNK_SIZE, resumable=True
     )
     request = youtube.videos().insert(
-        part=",".join(body.keys()),
+        part="snippet,status",
         body=body,
         media_body=media,
     )
