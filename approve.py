@@ -9,7 +9,7 @@ APPROVED_DIR = Path("output/approved")
 
 def approve(filename: str) -> None:
     name = Path(filename).name
-    stem = Path(name).stem
+    stem = Path(filename).stem
 
     mp4_src = PENDING_DIR / name
     json_src = PENDING_DIR / f"{stem}.json"
@@ -20,8 +20,8 @@ def approve(filename: str) -> None:
         raise FileNotFoundError(f"Sidecar metadata not found: {json_src}")
 
     APPROVED_DIR.mkdir(parents=True, exist_ok=True)
-    shutil.move(str(mp4_src), str(APPROVED_DIR / name))
-    shutil.move(str(json_src), str(APPROVED_DIR / f"{stem}.json"))
+    shutil.move(mp4_src, APPROVED_DIR / name)
+    shutil.move(json_src, APPROVED_DIR / f"{stem}.json")
 
     print(f"Approved: {APPROVED_DIR / name}")
     print(f"Metadata: {APPROVED_DIR / f'{stem}.json'}")
