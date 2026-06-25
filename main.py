@@ -79,5 +79,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        logger.error("Pipeline failed: %s", exc)
+        logger.exception("Pipeline failed")
         sys.exit(1)
