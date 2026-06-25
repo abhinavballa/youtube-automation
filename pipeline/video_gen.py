@@ -29,6 +29,12 @@ def _should_retry(exc: BaseException) -> bool:
     return False
 
 
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=5, exp_base=3, min=5, max=45),
+    retry=retry_if_exception(_should_retry),
+    reraise=True,
+)
 def create_video(narration: str) -> str:
     payload = {
         "video_inputs": [
@@ -88,9 +94,15 @@ def poll_until_complete(video_id: str) -> str:
 
 def download_video(url: str, dest: Path) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
-    with requests.get(url, stream=True) as resp:
-        resp.raise_for_status()
-        with open(dest, "wb") as fh:
-            for chunk in resp.iter_content(chunk_size=8192):
-                fh.write(chunk)
+    tmp = dest.with_suffix(".tmp")
+    try:
+        with requests.get(url, stream=True) as resp:
+            resp.raise_for_status()
+            with open(tmp, "wb") as fh:
+                for chunk in resp.iter_content(chunk_size=8192):
+                    fh.write(chunk)
+        tmp.rename(dest)
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise
     return dest
