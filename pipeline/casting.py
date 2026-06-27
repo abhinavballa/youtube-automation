@@ -32,7 +32,10 @@ def list_avatars() -> list[dict]:
     """Fetch and normalize avatars from HeyGen API."""
     resp = requests.get(f"{BASE_URL}/v2/avatars", headers=_heygen_headers())
     resp.raise_for_status()
-    avatars_data = resp.json()["data"]["avatars"]
+    body = resp.json()
+    if "data" not in body or "avatars" not in body["data"]:
+        raise RuntimeError(f"Unexpected HeyGen /v2/avatars response: {body}")
+    avatars_data = body["data"]["avatars"]
     return [
         {
             "avatar_id": a["avatar_id"],
@@ -53,7 +56,10 @@ def list_voices() -> list[dict]:
     """Fetch and normalize voices from HeyGen API."""
     resp = requests.get(f"{BASE_URL}/v2/voices", headers=_heygen_headers())
     resp.raise_for_status()
-    voices_data = resp.json()["data"]["voices"]
+    body = resp.json()
+    if "data" not in body or "voices" not in body["data"]:
+        raise RuntimeError(f"Unexpected HeyGen /v2/voices response: {body}")
+    voices_data = body["data"]["voices"]
     return [
         {
             "voice_id": v["voice_id"],
@@ -119,6 +125,9 @@ Please select the best avatar and voice for this script.\
         data = json.loads(text)
     except json.JSONDecodeError as exc:
         raise ValueError(f"Casting response is not valid JSON: {exc}\nResponse: {text}") from exc
+
+    if not isinstance(data, dict):
+        raise ValueError(f"Casting response is not a JSON object: {text}")
 
     # Validate IDs and fall back if needed
     valid_avatar_ids = {a["avatar_id"] for a in avatars}
