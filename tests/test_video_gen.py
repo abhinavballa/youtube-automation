@@ -8,8 +8,6 @@ from pipeline.video_gen import create_video, download_video, poll_until_complete
 @pytest.fixture(autouse=True)
 def env_vars(monkeypatch):
     monkeypatch.setenv("HEYGEN_API_KEY", "test-heygen-key")
-    monkeypatch.setenv("HEYGEN_AVATAR_ID", "test-avatar-id")
-    monkeypatch.setenv("HEYGEN_VOICE_ID", "test-voice-id")
 
 
 # --- create_video ---
@@ -18,7 +16,7 @@ def test_create_video_returns_video_id():
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"data": {"video_id": "abc-123"}}
     with patch("pipeline.video_gen.requests.post", return_value=mock_resp):
-        result = create_video("Hello kids!")
+        result = create_video("Hello kids!", "av-1", "vo-1")
     assert result == "abc-123"
 
 
@@ -26,7 +24,7 @@ def test_create_video_posts_correct_dimensions():
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"data": {"video_id": "abc-123"}}
     with patch("pipeline.video_gen.requests.post", return_value=mock_resp) as mock_post:
-        create_video("Hello kids!")
+        create_video("Hello kids!", "av-1", "vo-1")
     payload = mock_post.call_args.kwargs["json"]
     assert payload["dimension"] == {"width": 1080, "height": 1920}
 
@@ -35,9 +33,20 @@ def test_create_video_includes_idempotency_key():
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"data": {"video_id": "abc-123"}}
     with patch("pipeline.video_gen.requests.post", return_value=mock_resp) as mock_post:
-        create_video("Hello kids!")
+        create_video("Hello kids!", "av-1", "vo-1")
     headers = mock_post.call_args.kwargs["headers"]
     assert "Idempotency-Key" in headers
+
+
+def test_create_video_uses_passed_avatar_and_voice():
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"data": {"video_id": "abc-123"}}
+    with patch("pipeline.video_gen.requests.post", return_value=mock_resp) as mock_post:
+        create_video("Hello kids!", "av-99", "vo-99")
+    payload = mock_post.call_args.kwargs["json"]
+    char = payload["video_inputs"][0]
+    assert char["character"]["avatar_id"] == "av-99"
+    assert char["voice"]["voice_id"] == "vo-99"
 
 
 # --- poll_until_complete ---

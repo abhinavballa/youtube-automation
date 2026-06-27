@@ -35,19 +35,19 @@ def _should_retry(exc: BaseException) -> bool:
     retry=retry_if_exception(_should_retry),
     reraise=True,
 )
-def create_video(narration: str) -> str:
+def create_video(narration: str, avatar_id: str, voice_id: str) -> str:
     payload = {
         "video_inputs": [
             {
                 "character": {
                     "type": "avatar",
-                    "avatar_id": os.environ["HEYGEN_AVATAR_ID"],
+                    "avatar_id": avatar_id,
                     "avatar_style": "normal",
                 },
                 "voice": {
                     "type": "text",
                     "input_text": narration,
-                    "voice_id": os.environ["HEYGEN_VOICE_ID"],
+                    "voice_id": voice_id,
                 },
             }
         ],
