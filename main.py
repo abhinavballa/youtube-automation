@@ -7,7 +7,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from pipeline import script_gen, video_gen
+from pipeline import casting, script_gen, video_gen
 
 load_dotenv()
 
@@ -34,8 +34,12 @@ def main() -> None:
     script = script_gen.generate_script(args.topic)
     logger.info("Script generated. Title: %s", script["title"])
 
+    logger.info("Selecting avatar and voice for content...")
+    cast = casting.select_cast(script)
+    logger.info("Cast selected. avatar_id=%s voice_id=%s", cast["avatar_id"], cast["voice_id"])
+
     logger.info("Submitting render job to HeyGen...")
-    video_id = video_gen.create_video(script["narration"])
+    video_id = video_gen.create_video(script["narration"], cast["avatar_id"], cast["voice_id"])
     logger.info("Render job created. video_id=%s", video_id)
 
     logger.info("Polling HeyGen for render completion (timeout: 10 min)...")

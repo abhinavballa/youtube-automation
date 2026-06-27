@@ -64,8 +64,6 @@ timestamp you supply. Check YouTube Studio to confirm.
 |---|---|
 | `ANTHROPIC_API_KEY` | Anthropic API key |
 | `HEYGEN_API_KEY` | HeyGen API key |
-| `HEYGEN_AVATAR_ID` | ID of the HeyGen avatar to use |
-| `HEYGEN_VOICE_ID` | ID of the HeyGen voice to use |
 | `YOUTUBE_CLIENT_SECRETS_PATH` | Path to Google OAuth2 client secrets JSON |
 
 ## Running Tests
